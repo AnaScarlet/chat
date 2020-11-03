@@ -1,0 +1,95 @@
+* {
+    padding: 0;
+    margin: 0;
+}
+
+#header {
+    height: 64px;
+    margin: 0;
+}
+
+#app-name {
+    margin-right: 0.4rem;
+}
+
+.subscript-text {
+    font-size: 0.8rem;
+    height: 0.8rem;
+}
+
+#header img {
+    height: 100%;
+    width: auto;
+    margin-right: 1rem;
+}
+
+mat-sidenav-container{
+    position: absolute;
+    top: 64px;
+    bottom: 0;
+    left: 0;
+    right: 0;
+}
+
+mat-sidenav {
+    min-width: 10rem;
+}
+
+#main-content {
+    display: grid;
+    grid-template-columns: 960px auto;
+    grid-template-rows: 70% auto;
+    height: 100%;
+}
+
+
+mat-card {
+    margin: 1rem;
+}
+
+#chat-container {
+    grid-row: 1 / 2;
+    grid-column: 1 / 2;
+    margin-bottom: 0rem;
+}
+
+#chat-container mat-card-content {
+    height: 90%;
+    width: auto;
+}
+
+#chat-input-container {
+    grid-row: 2 / 3;
+    grid-column: 1 / 2;
+    height: fit-content;
+}
+
+#chat-input-form {
+    display: flex;
+    flex-direction: row;
+}
+
+#chat-users {
+    grid-row: 1 / 3;
+    grid-column: 2 / 3;
+    margin-left: 0rem;
+}
+
+mat-form-field {
+    flex: 12;
+}
+
+#send-button {
+    flex: 0.5;
+    margin: 2rem;
+    margin-top: 1.6rem;
+    margin-left: 1rem;
+    max-height: 2.2rem;
+}
+
+#messages-list {
+    display: flex;
+    flex-direction: column-reverse;
+    justify-content: flex-start;
+    height: 100%;
+}
