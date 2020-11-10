@@ -16,7 +16,9 @@
         <mat-list id="messages-list">
           <mat-list-item *ngFor="let message of messages">
             <img matListAvatar src="../assets/icons8-wechat.png" alt="Avi">
-            <h3 matLine [message]="message" [style.color]="message.colorCode"> {{message.username}} </h3>
+            <h3 matLine [message]="message" [style.color]="message.colorCode"> 
+              {{message.username}} 
+            </h3>
             <p matLine>
               {{message.message}}
             </p>
