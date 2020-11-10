@@ -82,7 +82,7 @@ mat-form-field {
 #send-button {
     flex: 0.5;
     margin: 2rem;
-    margin-top: 1.6rem;
+    margin-top: 0.8rem;
     margin-left: 1rem;
     max-height: 2.2rem;
 }

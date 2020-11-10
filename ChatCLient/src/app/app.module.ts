@@ -5,6 +5,8 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
+import { SocketIoModule, SocketIoConfig } from 'ngx-socket-io';
+
 import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatInputModule} from '@angular/material/input';
 import {MatSidenavModule} from '@angular/material/sidenav';
@@ -14,6 +16,9 @@ import {MatDividerModule} from '@angular/material/divider';
 import {MatToolbarModule} from '@angular/material/toolbar';
 import {MatIconModule} from '@angular/material/icon';
 import {MatListModule} from '@angular/material/list';
+import {FormsModule, ReactiveFormsModule} from '@angular/forms';
+
+const config: SocketIoConfig = { url: 'http://localhost:8988', options: {} };
 
 @NgModule({
   declarations: [
@@ -31,7 +36,11 @@ import {MatListModule} from '@angular/material/list';
     MatDividerModule,
     MatToolbarModule,
     MatIconModule,
-    MatListModule
+    MatListModule,
+    BrowserModule,
+    SocketIoModule.forRoot(config),
+    FormsModule,
+    ReactiveFormsModule
   ],
   providers: [],
   bootstrap: [AppComponent]

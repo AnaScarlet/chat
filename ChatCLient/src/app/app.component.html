@@ -16,9 +16,9 @@
         <mat-list id="messages-list">
           <mat-list-item *ngFor="let message of messages">
             <img matListAvatar src="../assets/icons8-wechat.png" alt="Avi">
-            <h3 matLine> {{message.from}} </h3>
+            <h3 matLine [message]="message" [style.color]="message.colorCode"> {{message.username}} </h3>
             <p matLine>
-              {{message.content}}
+              {{message.message}}
             </p>
           </mat-list-item>
         </mat-list>
@@ -26,10 +26,10 @@
     </mat-card>
 
     <mat-card id="chat-input-container">
-      <form id="chat-input-form" (submit)="$event.preventDefault()">
+      <form id="chat-input-form" (submit)="sendMessage()">
         <mat-form-field MatFormFieldControl appearance="outline">
           <mat-label>Start chatting!</mat-label>
-          <textarea matInput placeholder="Enter your chat message here..."></textarea>
+          <input matInput type="text" [formControl]="messageFormControl" [errorStateMatcher]="matcher" placeholder="Enter your chat message here...">
         </mat-form-field>
         <button id="send-button" mat-raised-button color="primary">Send</button>
       </form>
@@ -38,7 +38,16 @@
     <mat-card id="chat-users">
       <mat-card-title>Users</mat-card-title>
       <mat-card-subtitle>Online</mat-card-subtitle>
-
+      <mat-divider></mat-divider>
+      <mat-card-content>
+        <mat-list id="users-list">
+          <mat-list-item *ngFor="let user of onlineUsers">
+            <h3 matLine [user]="user" [style.color]="user.colorCode">
+              {{user.username}}
+            </h3>
+          </mat-list-item>
+        </mat-list>
+      </mat-card-content>
     </mat-card>
   </section>
 </mat-sidenav-container>
