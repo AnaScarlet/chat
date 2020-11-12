@@ -71,8 +71,21 @@ export class AppComponent implements AfterViewInit {
         .subscribe((data: SocketUsersAndMessagesObject) => {
           console.log("Join user observabe: ");
           console.log(data.users);
-          this.onlineUsers = data.users;
-          this.messages = data.messages;
+          if (!this.isUserRejoining(data.currentUser.username)) {
+            console.log("User is not rejoining.");
+            console.log("Users: ");
+            console.log(data.users);
+            this.onlineUsers = data.users;
+            this.messages = data.messages;
+          }
+          else {
+            console.log("User is rejoining.");
+            this.messages = data.messages;
+            this.messagingService.sendUserRejoin(this.getUsernameFromCookie());
+          }
+          // this.onlineUsers = data.users;
+          // this.messages = data.messages;
+
         });
 
     this.messagingService.leaveUser()
@@ -81,23 +94,41 @@ export class AppComponent implements AfterViewInit {
           console.log(users);
           this.onlineUsers = users;
         });
+
+    this.messagingService.userRejoin()
+        .subscribe((users: User[]) => {
+          console.log("User rejoin confirmation. Online users:");
+          console.log(users);
+          this.onlineUsers = users;
+        });
   }
 
   public retrieveMessages() {
     this.messagingService.getMessage()
         .subscribe((msg: Message[]) => {
-          console.log(`getMessages observable:`);
-          console.log(msg);
           this.messages = msg;
         });
   }
 
   public sendMessage() {
-    console.log("Sending message: " + this.messageFormControl.value)
     this.messagingService.sendMessage(this.messageFormControl.value);
     this.messageFormControl.setValue("");
   }
 
+  private isUserRejoining(currentUser: string): boolean {
+    if (document.cookie) {
+      console.log("I already have a cookie!");
+      return true;
+    }
+    else {
+      document.cookie = currentUser;
+      return false;
+    }
+  }
+
+  private getUsernameFromCookie() {
+    return document.cookie;
+  }
 
 ///////////////// Media Queries from Angular Material //////////////////
 
@@ -122,5 +153,5 @@ export class AppComponent implements AfterViewInit {
 }
 
 class SocketUsersAndMessagesObject {
-  constructor(public users: User[], public messages: Message[]) {}
+  constructor(public users: User[], public currentUser: User, public messages: Message[]) {}
 } 

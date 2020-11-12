@@ -17,7 +17,10 @@ export class MessagingService {
 
   sendMessage(msg: string){
     this.socket.emit("message", msg);
-    console.log(`Message sent. \n\tMessage: ${msg}`);
+  }
+
+  sendUserRejoin(username: string) {
+    this.socket.emit("user-rejoin", username);
   }
 
   getMessage() {
@@ -26,6 +29,10 @@ export class MessagingService {
 
   joinUser() {
     return this.socket.fromEvent("user-join");
+  }
+
+  userRejoin() {
+    return this.socket.fromEvent("user-rejoin");
   }
 
   leaveUser() {
