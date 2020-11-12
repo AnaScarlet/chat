@@ -1,9 +1,11 @@
-import { Component } from '@angular/core';
+import { Component, AfterViewInit } from '@angular/core';
 import { Message } from "./message";
 import { User } from "./user";
 import { MessagingService } from "./messaging.service"
 import {FormControl, FormGroupDirective, NgForm, Validators} from '@angular/forms';
 import {ErrorStateMatcher} from '@angular/material/core';
+import {BreakpointObserver, Breakpoints} from '@angular/cdk/layout';
+
 
 /** Error when invalid control is dirty, touched, or submitted. */
 export class MyErrorStateMatcher implements ErrorStateMatcher {
@@ -18,14 +20,14 @@ export class MyErrorStateMatcher implements ErrorStateMatcher {
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css']
 })
-export class AppComponent {
+export class AppComponent implements AfterViewInit {
   title = 'DollarsChatClient';
 
   public onlineUsers: User[];
   public messages: Message[];
-  //currentMessage: string = 'hh';
 
-  constructor (private messagingService: MessagingService) {
+  constructor (private messagingService: MessagingService, private breakpointObserver: BreakpointObserver) {
+    
   }
 
   messageFormControl = new FormControl('', [
@@ -37,7 +39,31 @@ export class AppComponent {
   ngOnInit() {
     this.retrieveMessages();
     this.retrieveOnlineUsers();
-    //this.sendMessage();
+  }
+
+  ngAfterViewInit(){
+    this.breakpointObserver.observe([
+      Breakpoints.Medium
+    ]).subscribe(result => {
+      if (result.matches) {
+        this.activateMediumLayout();
+      }
+    });
+    this.breakpointObserver.observe([
+      Breakpoints.Small
+    ]).subscribe(result => {
+      if (result.matches) {
+        this.activateSmallLayout();
+      }
+    });
+    this.breakpointObserver.observe([
+      Breakpoints.XSmall
+    ]).subscribe(result => {
+      if (result.matches) {
+        this.activateXSmallLayout();
+      }
+    });
+  
   }
 
   public retrieveOnlineUsers() {
@@ -67,14 +93,32 @@ export class AppComponent {
   }
 
   public sendMessage() {
-    //this.messageFormControl.valueChanges.subscribe(msg => {
-      console.log("Sending message: " + this.messageFormControl.value)
-      this.messagingService.sendMessage(this.messageFormControl.value);
-      this.messageFormControl.setValue("");
-    //})
-    
+    console.log("Sending message: " + this.messageFormControl.value)
+    this.messagingService.sendMessage(this.messageFormControl.value);
+    this.messageFormControl.setValue("");
+  }
+
+
+///////////////// Media Queries from Angular Material //////////////////
+
+  private activateMediumLayout() {
+    document.getElementsByTagName("mat-sidenav")[1].setAttribute("style", "min-width: 0");
+    document.getElementById("send-button").style.marginRight = "1rem";
+  }
+
+  private activateSmallLayout() {
+    document.getElementsByTagName("mat-sidenav")[0].setAttribute("style", "min-width: 0");
+    document.getElementById("send-button").style.marginRight = "0rem";
   }
   
+  private activateXSmallLayout() {
+    document.getElementById("main-content").style.gridTemplateRows = "100% 26%";
+    document.getElementById("send-button").style.marginLeft = "0.2rem";
+    document.getElementById("main-content").style.gridTemplateRows = "100% 26%";
+    document.getElementsByTagName("mat-sidenav-container")[0].setAttribute("style",
+      "position: absolute; top: 48px; bottom: 0; left: 0; right: 0;");
+  }
+
 }
 
 class SocketUsersAndMessagesObject {
