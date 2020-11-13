@@ -8,19 +8,26 @@
 <mat-sidenav-container>
   <mat-sidenav mode="side" opened></mat-sidenav>
   <mat-sidenav position="end" mode="side" opened></mat-sidenav>
-  <section id="main-content">
+  <section id="main-content" class="mat-typography">
     <mat-card id="chat-container">
       <mat-card-title>Chat</mat-card-title>
       <mat-divider></mat-divider>
       <mat-card-content>
         <mat-list id="messages-list">
           <mat-list-item *ngFor="let message of messages">
-            <img matListAvatar src="../assets/icons8-wechat.png" alt="Avi">
-            <h3 matLine [message]="message" [style.color]="message.colorCode"> 
+            <img *ngIf="!isUserCurrentUser(message.username)" matListAvatar src="../assets/icons8-wechat.png" alt="Avi">
+            <img *ngIf="isUserCurrentUser(message.username)" matListAvatar src="../assets/icons8-wechat-reverse.png" alt="Avi">
+            <h3 *ngIf="!isUserCurrentUser(message.username)" matLine [message]="message" [style.color]="message.colorCode"> 
               {{message.username}} 
             </h3>
-            <p matLine>
+            <h3 *ngIf="isUserCurrentUser(message.username)" matLine [message]="message" [style.color]="message.colorCode"> 
+              <span class="bolded-text">{{message.username}}</span> 
+            </h3>
+            <p *ngIf="!isUserCurrentUser(message.username)" matLine>
               {{message.message}}
+            </p>
+            <p *ngIf="isUserCurrentUser(message.username)" matLine>
+              <span class="bolded-text">{{message.message}}</span>
             </p>
           </mat-list-item>
         </mat-list>
@@ -44,8 +51,11 @@
       <mat-card-content>
         <mat-list id="users-list">
           <mat-list-item *ngFor="let user of onlineUsers">
-            <h3 matLine [user]="user" [style.color]="user.colorCode">
+            <h3 *ngIf="!isUserCurrentUser(user.username)" matLine [user]="user" [style.color]="user.colorCode">
               {{user.username}}
+            </h3>
+            <h3 *ngIf="isUserCurrentUser(user.username)" matLine [user]="user" [style.color]="user.colorCode">
+              <span class="bolded-text">{{user.username}}</span>
             </h3>
           </mat-list-item>
         </mat-list>

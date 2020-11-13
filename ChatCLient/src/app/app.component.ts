@@ -130,6 +130,12 @@ export class AppComponent implements AfterViewInit {
     return document.cookie;
   }
 
+  public isUserCurrentUser(username: string) {
+    console.log("Current user check called with username =***" + username + "***");
+    console.log("result: " + (username == document.cookie));
+    return username == document.cookie;
+  }
+
 ///////////////// Media Queries from Angular Material //////////////////
 
   private activateMediumLayout() {

@@ -116,6 +116,9 @@ io.on('connection', function(socket){
   socket.on('message', function(message){
     let newMessage = new Message(currentUser.username, message, currentUser.colorCode);
     messagesList.unshift(newMessage);
+    if (messagesList.length === 200) {
+      messagesList.pop();
+    }
     // could use either io.emit() or socket.broadcast.emit()
     //     io.emit will publish to everyone, including the client that published the message
     //     socket.broadcast.emit will publish to everyone but the client that published the message

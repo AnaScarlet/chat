@@ -17,6 +17,10 @@
     height: 0.8rem;
 }
 
+.bolded-text {
+    font-weight: 590;
+}
+
 #header img {
     height: 100%;
     width: auto;
@@ -37,7 +41,7 @@ mat-sidenav {
 
 #main-content {
     display: grid;
-    grid-template-columns: minmax(20rem,80%) minmax(12rem, auto);
+    grid-template-columns: minmax(20rem, 860px) minmax(12rem, auto);
     grid-template-rows: 70% 30%;
     height: 100%;
 }
