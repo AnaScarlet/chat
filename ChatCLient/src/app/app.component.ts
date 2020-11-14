@@ -68,23 +68,20 @@ export class AppComponent implements AfterViewInit {
 
   public retrieveOnlineUsers() {
     this.messagingService.joinUser()
-        .subscribe((data: SocketUsersAndMessagesObject) => {
-          console.log("Join user observabe: ");
-          console.log(data.users);
-          if (!this.isUserRejoining(data.currentUser.username)) {
-            console.log("User is not rejoining.");
-            console.log("Users: ");
-            console.log(data.users);
-            this.onlineUsers = data.users;
-            this.messages = data.messages;
+        .subscribe((socketObject: SocketReturnObject) => {
+          console.log("Got user join event.");
+
+          // If cookie is set, send it to server
+          if (this.getUsernameFromCookie()) {
+            console.log("Cookie is already set.");
+            this.messagingService.sendUserJoin(this.getUsernameFromCookie());
           }
           else {
-            console.log("User is rejoining.");
-            this.messages = data.messages;
-            this.messagingService.sendUserRejoin(this.getUsernameFromCookie());
+            console.log("Cookie is not set.");
+            this.setCookie(socketObject.newName);
           }
-          // this.onlineUsers = data.users;
-          // this.messages = data.messages;
+          this.onlineUsers = socketObject.users;
+          this.messages = socketObject.messages;
 
         });
 
@@ -101,29 +98,51 @@ export class AppComponent implements AfterViewInit {
           console.log(users);
           this.onlineUsers = users;
         });
+    
+    this.messagingService.userPoll()
+        .subscribe((usernameToCheck: string) => {
+          console.log("Got user poll.");
+          if (this.getUsernameFromCookie() === usernameToCheck) {
+            console.log("It was me.");
+            this.messagingService.respondToUserPoll(true, usernameToCheck);
+          }
+          else {
+            console.log("Not me.");
+            this.messagingService.respondToUserPoll(false, usernameToCheck);
+          }
+        });
+    
+    this.messagingService.usersUpdate()
+        .subscribe((users: User[]) => {
+          console.log("Updated Online users:");
+          console.log(users);
+          this.onlineUsers = users;
+        });
   }
 
   public retrieveMessages() {
     this.messagingService.getMessage()
-        .subscribe((msg: Message[]) => {
-          this.messages = msg;
+        .subscribe((socketObject: SocketReturnObject) => {
+          this.messages = socketObject.messages;
+          if (socketObject.nameChanged) {
+            // User changed their name.
+            console.log("User changed their name.");
+            this.setCookie(socketObject.newName);
+          }
+          this.onlineUsers = socketObject.users;
+          
+          if (socketObject.errorMessage)
+            window.alert(socketObject.errorMessage);
         });
   }
 
   public sendMessage() {
-    this.messagingService.sendMessage(this.messageFormControl.value);
+    this.messagingService.sendMessage(this.messageFormControl.value, this.getUsernameFromCookie());
     this.messageFormControl.setValue("");
   }
 
-  private isUserRejoining(currentUser: string): boolean {
-    if (document.cookie) {
-      console.log("I already have a cookie!");
-      return true;
-    }
-    else {
-      document.cookie = currentUser;
-      return false;
-    }
+  private setCookie(username: string) {
+    document.cookie = username;
   }
 
   private getUsernameFromCookie() {
@@ -131,8 +150,6 @@ export class AppComponent implements AfterViewInit {
   }
 
   public isUserCurrentUser(username: string) {
-    console.log("Current user check called with username =***" + username + "***");
-    console.log("result: " + (username == document.cookie));
     return username == document.cookie;
   }
 
@@ -158,6 +175,8 @@ export class AppComponent implements AfterViewInit {
 
 }
 
-class SocketUsersAndMessagesObject {
-  constructor(public users: User[], public currentUser: User, public messages: Message[]) {}
-} 
+
+class SocketReturnObject {
+  constructor(public messages: Message[], public errorMessage: string, public users: User[], 
+    public nameChanged: boolean, public colorChanged: boolean, public newName: string) {}
+}

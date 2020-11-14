@@ -35,7 +35,7 @@
     </mat-card>
 
     <mat-card id="chat-input-container">
-      <form id="chat-input-form" (submit)="sendMessage()">
+      <form id="chat-input-form" autocomplete="off" (submit)="sendMessage()">
         <mat-form-field MatFormFieldControl appearance="outline">
           <mat-label>Start chatting!</mat-label>
           <input matInput type="text" [formControl]="messageFormControl" [errorStateMatcher]="matcher" placeholder="Enter your chat message here...">

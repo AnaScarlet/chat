@@ -15,12 +15,16 @@ export class MessagingService {
   constructor(private socket: Socket) { }
 
 
-  sendMessage(msg: string){
-    this.socket.emit("message", msg);
+  sendMessage(msg: string, username: string){
+    this.socket.emit("message", msg, username);
   }
 
-  sendUserRejoin(username: string) {
-    this.socket.emit("user-rejoin", username);
+  sendUserJoin(username: string) {
+    this.socket.emit("join", username);
+  }
+
+  respondToUserPoll(isMe:boolean, username: string) {
+    this.socket.emit("user poll", isMe, username);
   }
 
   getMessage() {
@@ -28,15 +32,23 @@ export class MessagingService {
 }
 
   joinUser() {
-    return this.socket.fromEvent("user-join");
+    return this.socket.fromEvent("join");
   }
 
   userRejoin() {
-    return this.socket.fromEvent("user-rejoin");
+    return this.socket.fromEvent("rejoin");
   }
 
   leaveUser() {
-    return this.socket.fromEvent("user-leave");
+    return this.socket.fromEvent("leave");
+  }
+
+  userPoll() {
+    return this.socket.fromEvent("user poll");
+  }
+
+  usersUpdate() {
+    return this.socket.fromEvent("users update");
   }
 
 }
