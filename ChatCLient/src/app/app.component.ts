@@ -1,10 +1,11 @@
-import { Component, AfterViewInit } from '@angular/core';
+import { Component, AfterViewInit, HostListener } from '@angular/core';
 import { Message } from "./message";
 import { User } from "./user";
 import { MessagingService } from "./messaging.service"
 import {FormControl, FormGroupDirective, NgForm, Validators} from '@angular/forms';
 import {ErrorStateMatcher} from '@angular/material/core';
 import {BreakpointObserver, Breakpoints} from '@angular/cdk/layout';
+import { Scroll } from '@angular/router';
 
 
 /** Error when invalid control is dirty, touched, or submitted. */
@@ -81,7 +82,8 @@ export class AppComponent implements AfterViewInit {
           }
           this.onlineUsers = socketObject.users;
           this.messages = socketObject.messages;
-
+          this.renderedMessages = this.messages.slice(0, 8);
+          this.renderStartIndex = 0;
         });
 
     this.messagingService.leaveUser()
@@ -123,6 +125,8 @@ export class AppComponent implements AfterViewInit {
     this.messagingService.getMessage()
         .subscribe((socketObject: SocketReturnObject) => {
           this.messages = socketObject.messages;
+          this.renderedMessages = this.messages.slice(0, 8);
+          this.renderStartIndex = 0;
           if (socketObject.nameChanged && socketObject.currentUserName === this.getUsernameFromCookie()) {
             // User changed their name.
             console.log("User changed their name.");
@@ -153,6 +157,31 @@ export class AppComponent implements AfterViewInit {
   public isUserCurrentUser(username: string) {
     return username == document.cookie;
   }
+
+  // private msgIndx = 0;
+  // private prevPositionStart = 0;
+  public renderedMessages: Message[] = [];
+  public renderStartIndex: number = 0;
+
+  public updateRenderedMessages(data) {
+    console.log("New messages:");
+    this.renderedMessages = this.renderedMessages.concat(this.messages.slice(data.renderStartIndex, data.renderEndIndex));
+    console.log(this.renderedMessages);
+    console.log("Parent End index: " + data.renderEndIndex);
+    // if (data.renderEndIndex >= this.messages.length-1) {
+    //   this.renderStartIndex = 0;
+    // }
+    this.renderStartIndex = data.renderEndIndex;
+  }
+
+  // @HostListener('scroll', ['$event'])
+  // onScroll(event: Scroll) {
+  //   console.log("Scroll event position start = "+event.position[0]);
+  //   if (event.position[0] > this.prevPositionStart) {
+  //     this.renderedMessages = this.messages.slice(this.msgIndx, this.msgIndx+10);
+  //   }    
+  //   this.prevPositionStart = event.position[0]
+  // }
 
 ///////////////// Media Queries from Angular Material //////////////////
 

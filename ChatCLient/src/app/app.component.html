@@ -13,8 +13,8 @@
       <mat-card-title>Chat</mat-card-title>
       <mat-divider></mat-divider>
       <mat-card-content>
-        <mat-list id="messages-list">
-          <mat-list-item *ngFor="let message of messages">
+        <mat-list appScrollTracker [startIndx]="renderStartIndex" (renderMessages)="updateRenderedMessages($event)" id="messages-list">
+          <mat-list-item *ngFor="let message of renderedMessages">
             <img *ngIf="!isUserCurrentUser(message.username)" matListAvatar src="../assets/icons8-wechat.png" alt="Avi">
             <img *ngIf="isUserCurrentUser(message.username)" matListAvatar src="../assets/icons8-wechat-reverse.png" alt="Avi">
             <h3 *ngIf="!isUserCurrentUser(message.username)" matLine [message]="message">

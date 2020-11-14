@@ -17,13 +17,14 @@ import {MatToolbarModule} from '@angular/material/toolbar';
 import {MatIconModule} from '@angular/material/icon';
 import {MatListModule} from '@angular/material/list';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
-//import {ScrollingModule} from '@angular/cdk/scrolling';
+import { ScrollTrackerDirective } from './scroll-tracker.directive';
 
 const config: SocketIoConfig = { url: 'http://localhost:8988', options: {} };
 
 @NgModule({
   declarations: [
-    AppComponent
+    AppComponent,
+    ScrollTrackerDirective
   ],
   imports: [
     BrowserModule,
@@ -42,7 +43,6 @@ const config: SocketIoConfig = { url: 'http://localhost:8988', options: {} };
     SocketIoModule.forRoot(config),
     FormsModule,
     ReactiveFormsModule
-   // ScrollingModule
   ],
   providers: [],
   bootstrap: [AppComponent]
