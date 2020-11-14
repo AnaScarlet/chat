@@ -31,7 +31,6 @@ export class AppComponent implements AfterViewInit {
   }
 
   messageFormControl = new FormControl('', [
-    Validators.pattern(RegExp("")),
   ]);
 
   matcher = new MyErrorStateMatcher();

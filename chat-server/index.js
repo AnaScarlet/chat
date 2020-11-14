@@ -94,6 +94,40 @@ function removeUser(userRm) {
   removeOnlineUser(userRm);
 }
 
+function searchAndReplaceEmojis(emojiReplaceMessage) {
+  if (emojiReplaceMessage.indexOf(":)") !== -1) {
+    emojiReplaceMessage = emojiReplaceMessage.replace(/:\)/g, "😊");
+  }
+  if (emojiReplaceMessage.indexOf(":D") !== -1) {
+    emojiReplaceMessage = emojiReplaceMessage.replace(/:D/g, "😃");
+  }
+  if (emojiReplaceMessage.indexOf(":P") !== -1) {
+    emojiReplaceMessage = emojiReplaceMessage.replace(/:P/g, "😝");
+  }
+  if (emojiReplaceMessage.indexOf("<3") !== -1) {
+    emojiReplaceMessage = emojiReplaceMessage.replace(/<3/g, "❤️");
+  }
+  if (emojiReplaceMessage.indexOf(":(") !== -1) {
+    emojiReplaceMessage = emojiReplaceMessage.replace(/:\(/g, "🙁");
+  }
+  if (emojiReplaceMessage.indexOf(":/") !== -1) {
+    emojiReplaceMessage = emojiReplaceMessage.replace(/:\//g, "😕");
+  }
+  if (emojiReplaceMessage.indexOf(":*") !== -1) {
+    emojiReplaceMessage = emojiReplaceMessage.replace(/:\*/g, "😘");
+  }
+  if (emojiReplaceMessage.indexOf("8)") !== -1) {
+    emojiReplaceMessage = emojiReplaceMessage.replace(/8\)/g, "🤓");
+  }
+  if (emojiReplaceMessage.indexOf(";)") !== -1) {
+    emojiReplaceMessage = emojiReplaceMessage.replace(/;\)/g, "😉");
+  }
+  if (emojiReplaceMessage.indexOf(":O") !== -1) {
+    emojiReplaceMessage = emojiReplaceMessage.replace(/:O/g, "😮");
+  }
+  return emojiReplaceMessage;
+}
+
 function checkMessage(messageText) {
   let returnObject = {newName: "", newColor: "", errorMessage: "", newMessage: ""};
   let nameCommandIndex = messageText.indexOf("/name");
@@ -132,10 +166,11 @@ function checkMessage(messageText) {
     returnObject.newMessage = EMPTY_MESSAGE;
     returnObject.errorMessage += "Attack thwarted!";
   }
-  if (messageText.indexOf("/ ") !== -1) {
-    returnObject.errorMessage += "Empty command sequence detected. Don't use spaces after / for a valid command.\n";
+  
+  if (returnObject.newMessage !== EMPTY_MESSAGE) {
+    let emojiReplaceMessage = messageText;
+    returnObject.newMessage = searchAndReplaceEmojis(emojiReplaceMessage);
   }
-
 
   return returnObject;
 }
@@ -252,6 +287,9 @@ io.on('connection', function(socket){
     checkMessageObject = checkMessage(message);
     if (checkMessageObject.newMessage === EMPTY_MESSAGE) {
       returnMessage = "";
+    }
+    else if (checkMessageObject.newMessage) {
+      returnMessage = checkMessageObject.newMessage;
     }
     if (checkMessageObject.newName) {
       returnUsername = checkMessageObject.newName;
