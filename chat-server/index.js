@@ -49,13 +49,14 @@ class User {
 }
 
 class SocketReturnObject {
-  constructor(messages, errorMessage, users, currentUser, nameChanged, colorChanged, newName) {
+  constructor(messages, errorMessage, users, currentUser, nameChanged, colorChanged, currentUserName, newName) {
     this.messages = messages;
     this.errorMessage = errorMessage;
     this.users = users;
     this.currentUser = currentUser;
     this.nameChanged = nameChanged;
     this.colorChanged = colorChanged;
+    this.currentUserName = currentUserName;
     this.newName = newName;
   }
 }
@@ -175,41 +176,40 @@ function checkMessage(messageText) {
   return returnObject;
 }
 
-function rejoinUser(username) {
+function rejoinUser(username, currentUser) {
   let newCurrentUser = usersList.find( (user) => username === user.username );
-    if (newCurrentUser !== undefined) {
-      console.log(`currentUser.username = ${currentUser.username}`);
-      removeUser(currentUser);
-      currentUser = newCurrentUser;
-      currentUser.setOnline();
-      filterOnlineUsers();
-      console.log("Updated Online Users list:");
-      console.log(onlineUsersList);
-      console.log("\n");
-      io.emit('rejoin', onlineUsersList);
-    }
-    else {
-      console.log("WARNING: could not find rejoining user in the users list.");
-      //usersList.push(currentUser);
-      //onlineUsersList.push(currentUser);
-    }
+  if (newCurrentUser !== undefined) {
+    console.log(`currentUser.username = ${currentUser.username}`);
+    removeUser(currentUser);
+    currentUser = newCurrentUser;
+    currentUser.setOnline();
+    filterOnlineUsers();
+    console.log("Updated Online Users list:");
+    console.log(onlineUsersList);
+    console.log("\n");
+    io.emit('rejoin', onlineUsersList);
+  }
+  else {
+    console.log("WARNING: could not find rejoining user in the users list.");
+    //usersList.push(currentUser);
+    //onlineUsersList.push(currentUser);
+  }
 }
 
 let usersList = [];
 let onlineUsersList;
 let messagesList = [];
-let currentUser;
 let presentUsers = [];
 
 
 // connection and disconnect are default events from socket.io
 // socket is an object that will represent the client that connected
 io.on('connection', function(socket){
-  currentUser = new User();
+  let currentUser = new User();
   console.log(`User connected. Username: ${currentUser.username}; Color: ${currentUser.colorCode}`);
   usersList.push(currentUser);
   filterOnlineUsers();
-  let returnObject = new SocketReturnObject(messagesList, "", onlineUsersList, currentUser, false, false, currentUser.username);
+  let returnObject = new SocketReturnObject(messagesList, "", onlineUsersList, currentUser, false, false, currentUser.username, "");
 
   io.emit('join', returnObject);
 
@@ -228,7 +228,7 @@ io.on('connection', function(socket){
     }
     else if (cookieUserExistsInUsersList !== -1 && cookieUserExistsInOnlineUsersList === -1) {
       console.log("INFO: User is in usersList but not in onlineUsersList. It's a rejoining user.");
-      rejoinUser(cookieUsername);
+      rejoinUser(cookieUsername, currentUser);
     }
     else {
       console.log("WARNING: Something werid with the username stored in the client's cookie.");
@@ -243,7 +243,7 @@ io.on('connection', function(socket){
   //          When the connectiono closes, it removes the wrong user from the list...
   let pollingIntervalId = setInterval(() => {
     for (user of onlineUsersList) {
-      io.emit("user poll", user.username);
+      io.sockets.emit("user poll", user.username);
     }
     // Wait for a minute for them to respond
     setTimeout(() => {
@@ -258,7 +258,7 @@ io.on('connection', function(socket){
       console.log("Online users list:");
       console.log(onlineUsersList);
 
-      io.emit("users update", onlineUsersList);
+      io.sockets.emit("users update", onlineUsersList);
     }, 10000);  // wait for users to respond
   }, 100000); // poll every 100 seconds
 
@@ -271,7 +271,8 @@ io.on('connection', function(socket){
   
   // 'chat message' is an event from this particular connected client
   socket.on('message', function(message, username){
-    let returnUsername = username;
+    let currentUsername = username;
+    let newUsername = "";
     let returnMessage = message;
     let returnColorCode = "";
     let nameChanged = false;
@@ -292,7 +293,7 @@ io.on('connection', function(socket){
       returnMessage = checkMessageObject.newMessage;
     }
     if (checkMessageObject.newName) {
-      returnUsername = checkMessageObject.newName;
+      newUsername = checkMessageObject.newName;
       user.username = checkMessageObject.newName;
       nameChanged = true;
     }
@@ -306,7 +307,7 @@ io.on('connection', function(socket){
     }
     
     if (returnMessage) {
-      let newMessage = new Message(returnUsername, returnMessage, returnColorCode);
+      let newMessage = new Message(currentUsername, returnMessage, returnColorCode);
       messagesList.unshift(newMessage);
     }
     if (messagesList.length === 201) {
@@ -314,7 +315,7 @@ io.on('connection', function(socket){
     }
 
     let returnObject = new SocketReturnObject(messagesList, checkMessageObject.errorMessage, 
-      onlineUsersList, currentUser, nameChanged, colorChanged, returnUsername);
+      onlineUsersList, currentUser, nameChanged, colorChanged, currentUsername, newUsername);
 
     // could use either io.emit() or socket.broadcast.emit()
     //     io.emit will publish to everyone, including the client that published the message

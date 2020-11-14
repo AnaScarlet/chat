@@ -77,7 +77,7 @@ export class AppComponent implements AfterViewInit {
           }
           else {
             console.log("Cookie is not set.");
-            this.setCookie(socketObject.newName);
+            this.setCookie(socketObject.currentUserName);
           }
           this.onlineUsers = socketObject.users;
           this.messages = socketObject.messages;
@@ -123,15 +123,17 @@ export class AppComponent implements AfterViewInit {
     this.messagingService.getMessage()
         .subscribe((socketObject: SocketReturnObject) => {
           this.messages = socketObject.messages;
-          if (socketObject.nameChanged) {
+          if (socketObject.nameChanged && socketObject.currentUserName === this.getUsernameFromCookie()) {
             // User changed their name.
             console.log("User changed their name.");
             this.setCookie(socketObject.newName);
           }
           this.onlineUsers = socketObject.users;
-          
-          if (socketObject.errorMessage)
+          console.log("Returned message object:");
+          console.log(socketObject);
+          if (socketObject.errorMessage && socketObject.currentUserName === this.getUsernameFromCookie()) {
             window.alert(socketObject.errorMessage);
+          }
         });
   }
 
@@ -177,5 +179,5 @@ export class AppComponent implements AfterViewInit {
 
 class SocketReturnObject {
   constructor(public messages: Message[], public errorMessage: string, public users: User[], 
-    public nameChanged: boolean, public colorChanged: boolean, public newName: string) {}
+    public nameChanged: boolean, public colorChanged: boolean, public currentUserName:string, public newName: string) {}
 }
