@@ -17,11 +17,18 @@
           <mat-list-item *ngFor="let message of messages">
             <img *ngIf="!isUserCurrentUser(message.username)" matListAvatar src="../assets/icons8-wechat.png" alt="Avi">
             <img *ngIf="isUserCurrentUser(message.username)" matListAvatar src="../assets/icons8-wechat-reverse.png" alt="Avi">
-            <h3 *ngIf="!isUserCurrentUser(message.username)" matLine [message]="message" [style.color]="message.colorCode"> 
-              {{message.username}} 
+            <h3 *ngIf="!isUserCurrentUser(message.username)" matLine [message]="message">
+              <span [style.color]="message.colorCode">
+                {{message.username}}:
+              </span>
+              <span class="subscript-text">{{message.timestamp}}</span>
             </h3>
-            <h3 *ngIf="isUserCurrentUser(message.username)" matLine [message]="message" [style.color]="message.colorCode"> 
-              <span class="bolded-text">{{message.username}}</span> 
+            <h3 *ngIf="isUserCurrentUser(message.username)" matLine [message]="message" > 
+              <span class="bolded-text">
+                <span [style.color]="message.colorCode">
+                  {{message.username}}:
+                </span> <span class="subscript-text">{{message.timestamp}}</span>
+              </span> 
             </h3>
             <p *ngIf="!isUserCurrentUser(message.username)" matLine>
               {{message.message}}

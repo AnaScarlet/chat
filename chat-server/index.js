@@ -1,3 +1,4 @@
+const { time } = require('console');
 var randomWords = require('random-words');
 
 var app = require('express')();
@@ -9,10 +10,11 @@ let colors = ["aliceblue", "antiquewhite", "aqua", "aquamarine", "azure", "beige
 const EMPTY_MESSAGE = "EMPTY";
 
 class Message {
-  constructor( username, message, colorCode ) {
+  constructor( username, message, colorCode, timestamp ) {
     this.username = username;
     this.message = message;
     this.colorCode = colorCode;
+    this.timestamp = timestamp;
   }
 }
 
@@ -49,11 +51,10 @@ class User {
 }
 
 class SocketReturnObject {
-  constructor(messages, errorMessage, users, currentUser, nameChanged, colorChanged, currentUserName, newName) {
+  constructor(messages, errorMessage, users, nameChanged, colorChanged, currentUserName, newName) {
     this.messages = messages;
     this.errorMessage = errorMessage;
     this.users = users;
-    this.currentUser = currentUser;
     this.nameChanged = nameChanged;
     this.colorChanged = colorChanged;
     this.currentUserName = currentUserName;
@@ -209,7 +210,7 @@ io.on('connection', function(socket){
   console.log(`User connected. Username: ${currentUser.username}; Color: ${currentUser.colorCode}`);
   usersList.push(currentUser);
   filterOnlineUsers();
-  let returnObject = new SocketReturnObject(messagesList, "", onlineUsersList, currentUser, false, false, currentUser.username, "");
+  let returnObject = new SocketReturnObject(messagesList, "", onlineUsersList, false, false, currentUser.username, "");
 
   io.emit('join', returnObject);
 
@@ -277,6 +278,8 @@ io.on('connection', function(socket){
     let returnColorCode = "";
     let nameChanged = false;
     let colorChanged = false;
+    let now = new Date();
+    let timestamp = now.getFullYear() + "-" + now.getMonth() + "-" + now.getDate() + " "+ now.getHours() + ":" + now.getMinutes() + ":" + now.getSeconds();
 
     let user = onlineUsersList.find(user => user.username === username);
     if (user === undefined) {
@@ -307,7 +310,7 @@ io.on('connection', function(socket){
     }
     
     if (returnMessage) {
-      let newMessage = new Message(currentUsername, returnMessage, returnColorCode);
+      let newMessage = new Message(currentUsername, returnMessage, returnColorCode, timestamp);
       messagesList.unshift(newMessage);
     }
     if (messagesList.length === 201) {
@@ -315,7 +318,7 @@ io.on('connection', function(socket){
     }
 
     let returnObject = new SocketReturnObject(messagesList, checkMessageObject.errorMessage, 
-      onlineUsersList, currentUser, nameChanged, colorChanged, currentUsername, newUsername);
+      onlineUsersList, nameChanged, colorChanged, currentUsername, newUsername);
 
     // could use either io.emit() or socket.broadcast.emit()
     //     io.emit will publish to everyone, including the client that published the message
