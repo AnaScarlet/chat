@@ -1,0 +1,26 @@
+<mat-list appScrollTracker [startIndx]="renderStartIndex" (renderMessages)="updateRenderedMessages($event)" id="messages-list">
+<mat-list-item *ngFor="let message of renderedMessages">
+    <img *ngIf="!cookie.isUserCurrentUser(message.username)" matListAvatar src="../assets/icons8-wechat.png" alt="Avi">
+    <img *ngIf="cookie.isUserCurrentUser(message.username)" matListAvatar src="../assets/icons8-wechat-reverse.png" alt="Avi">
+    <h3 *ngIf="!cookie.isUserCurrentUser(message.username)" matLine [message]="message">
+    <span [style.color]="message.colorCode">
+        {{message.username}}:
+    </span>
+    <span class="subscript-text">{{message.timestamp}}</span>
+    </h3>
+    <h3 *ngIf="cookie.isUserCurrentUser(message.username)" matLine [message]="message" > 
+    <span class="bolded-text">
+        <span [style.color]="message.colorCode">
+        {{message.username}}:
+        </span> <span class="subscript-text">{{message.timestamp}}</span>
+    </span> 
+    </h3>
+    <p *ngIf="!cookie.isUserCurrentUser(message.username)" matLine>
+    {{message.message}}
+    </p>
+    <p *ngIf="cookie.isUserCurrentUser(message.username)" matLine>
+    <span class="bolded-text">{{message.message}}</span>
+    </p>
+</mat-list-item>
+</mat-list>
+

@@ -98,40 +98,9 @@ mat-form-field {
     max-height: 2.2rem;
 }
 
-#messages-list {
-    display: flex;
-    flex-direction: column-reverse;
-    justify-content: flex-start;
-    height: 100%;
-    overflow: auto;
-}
-
 #users-list {
     height: inherit;
     overflow: auto;
 }
 
-/* Scrollbar style */
-/* width */
-::-webkit-scrollbar {
-    width: 8px;
-}
 
-
-/* Track */
-::-webkit-scrollbar-track {
-    background: #757575;
-    box-shadow: inset 0 0 4px#303030;
-    border-radius: 5px;
-}
-
-/* Handle */
-::-webkit-scrollbar-thumb {
-    background: #303030;
-    border-radius: 5px;
-}
-
-/* Handle on hover */
-::-webkit-scrollbar-thumb:hover {
-    background: #212121; 
-}

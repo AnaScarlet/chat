@@ -1,11 +1,12 @@
 import { Component, AfterViewInit, HostListener } from '@angular/core';
 import { Message } from "./message";
 import { User } from "./user";
+import { SocketReturnObject } from './socket-return-object';
 import { MessagingService } from "./messaging.service"
 import {FormControl, FormGroupDirective, NgForm, Validators} from '@angular/forms';
 import {ErrorStateMatcher} from '@angular/material/core';
 import {BreakpointObserver, Breakpoints} from '@angular/cdk/layout';
-import { Scroll } from '@angular/router';
+import { Cookie } from './cookie';
 
 
 /** Error when invalid control is dirty, touched, or submitted. */
@@ -15,6 +16,7 @@ export class MyErrorStateMatcher implements ErrorStateMatcher {
     return !!(control && control.invalid && (control.dirty || control.touched || isSubmitted));
   }
 }
+
 
 @Component({
   selector: 'app-root',
@@ -26,18 +28,19 @@ export class AppComponent implements AfterViewInit {
 
   public onlineUsers: User[];
   public messages: Message[];
+  public renderMessages: boolean = false;
+  public cookie: Cookie;
+  
+  public messageFormControl = new FormControl('', [
+  ]);
+
+  public matcher = new MyErrorStateMatcher();
 
   constructor (private messagingService: MessagingService, private breakpointObserver: BreakpointObserver) {
     
   }
 
-  messageFormControl = new FormControl('', [
-  ]);
-
-  matcher = new MyErrorStateMatcher();
-
   ngOnInit() {
-    this.retrieveMessages();
     this.retrieveOnlineUsers();
   }
 
@@ -66,24 +69,32 @@ export class AppComponent implements AfterViewInit {
   
   }
 
+  public updateState(data) {
+    this.messages = data.messages;
+    this.cookie = data.cookie;
+    this.onlineUsers = data.users;
+  }
+
   public retrieveOnlineUsers() {
     this.messagingService.joinUser()
         .subscribe((socketObject: SocketReturnObject) => {
           console.log("Got user join event.");
 
           // If cookie is set, send it to server
-          if (this.getUsernameFromCookie()) {
+          if (this.cookie !== undefined && this.cookie.getUsernameFromCookie()) {
             console.log("Cookie is already set.");
-            this.messagingService.sendUserJoin(this.getUsernameFromCookie());
+            this.messagingService.sendUserJoin(this.cookie.getUsernameFromCookie());
           }
           else {
             console.log("Cookie is not set.");
-            this.setCookie(socketObject.currentUserName);
+            this.cookie = new Cookie(socketObject.currentUserName)
+            //this.setCookie(socketObject.currentUserName);
           }
           this.onlineUsers = socketObject.users;
           this.messages = socketObject.messages;
-          this.renderedMessages = this.messages.slice(0, 8);
-          this.renderStartIndex = 0;
+          this.renderMessages = true;
+          //this.renderedMessages = this.messages.slice(0, 8);
+          //this.renderStartIndex = 0;
         });
 
     this.messagingService.leaveUser()
@@ -103,7 +114,7 @@ export class AppComponent implements AfterViewInit {
     this.messagingService.userPoll()
         .subscribe((usernameToCheck: string) => {
           console.log("Got user poll.");
-          if (this.getUsernameFromCookie() === usernameToCheck) {
+          if (this.cookie.getUsernameFromCookie() === usernameToCheck) {
             console.log("It was me.");
             this.messagingService.respondToUserPoll(true, usernameToCheck);
           }
@@ -121,58 +132,24 @@ export class AppComponent implements AfterViewInit {
         });
   }
 
-  public retrieveMessages() {
-    this.messagingService.getMessage()
-        .subscribe((socketObject: SocketReturnObject) => {
-          this.messages = socketObject.messages;
-          this.renderedMessages = this.messages.slice(0, 8);
-          this.renderStartIndex = 0;
-          if (socketObject.nameChanged && socketObject.currentUserName === this.getUsernameFromCookie()) {
-            // User changed their name.
-            console.log("User changed their name.");
-            this.setCookie(socketObject.newName);
-          }
-          this.onlineUsers = socketObject.users;
-          console.log("Returned message object:");
-          console.log(socketObject);
-          if (socketObject.errorMessage && socketObject.currentUserName === this.getUsernameFromCookie()) {
-            window.alert(socketObject.errorMessage);
-          }
-        });
-  }
-
   public sendMessage() {
-    this.messagingService.sendMessage(this.messageFormControl.value, this.getUsernameFromCookie());
+    this.messagingService.sendMessage(this.messageFormControl.value, this.cookie.getUsernameFromCookie());
     this.messageFormControl.setValue("");
   }
 
-  private setCookie(username: string) {
-    document.cookie = username;
-  }
+  // private setCookie(username: string) {
+  //   document.cookie = username;
+  // }
 
-  private getUsernameFromCookie() {
-    return document.cookie;
-  }
+  // private getUsernameFromCookie() {
+  //   return document.cookie;
+  // }
 
-  public isUserCurrentUser(username: string) {
-    return username == document.cookie;
-  }
+  // public isUserCurrentUser(username: string) {
+  //   return username == document.cookie;
+  // }
 
-  // private msgIndx = 0;
-  // private prevPositionStart = 0;
-  public renderedMessages: Message[] = [];
-  public renderStartIndex: number = 0;
 
-  public updateRenderedMessages(data) {
-    console.log("New messages:");
-    this.renderedMessages = this.renderedMessages.concat(this.messages.slice(data.renderStartIndex, data.renderEndIndex));
-    console.log(this.renderedMessages);
-    console.log("Parent End index: " + data.renderEndIndex);
-    // if (data.renderEndIndex >= this.messages.length-1) {
-    //   this.renderStartIndex = 0;
-    // }
-    this.renderStartIndex = data.renderEndIndex;
-  }
 
   // @HostListener('scroll', ['$event'])
   // onScroll(event: Scroll) {
@@ -203,10 +180,4 @@ export class AppComponent implements AfterViewInit {
       "position: absolute; top: 48px; bottom: 0; left: 0; right: 0;");
   }
 
-}
-
-
-class SocketReturnObject {
-  constructor(public messages: Message[], public errorMessage: string, public users: User[],
-    public nameChanged: boolean, public colorChanged: boolean, public currentUserName:string, public newName: string) {}
 }

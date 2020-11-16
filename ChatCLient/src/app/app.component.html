@@ -8,38 +8,15 @@
 <mat-sidenav-container>
   <mat-sidenav mode="side" opened></mat-sidenav>
   <mat-sidenav position="end" mode="side" opened></mat-sidenav>
-  <section id="main-content" class="mat-typography">
+  <section id="main-content" class="mat-typography" (stateUpdateEvent)="updateState($event)">
     <mat-card id="chat-container">
       <mat-card-title>Chat</mat-card-title>
       <mat-divider></mat-divider>
       <mat-card-content>
-        <mat-list appScrollTracker [startIndx]="renderStartIndex" (renderMessages)="updateRenderedMessages($event)" id="messages-list">
-          <mat-list-item *ngFor="let message of renderedMessages">
-            <img *ngIf="!isUserCurrentUser(message.username)" matListAvatar src="../assets/icons8-wechat.png" alt="Avi">
-            <img *ngIf="isUserCurrentUser(message.username)" matListAvatar src="../assets/icons8-wechat-reverse.png" alt="Avi">
-            <h3 *ngIf="!isUserCurrentUser(message.username)" matLine [message]="message">
-              <span [style.color]="message.colorCode">
-                {{message.username}}:
-              </span>
-              <span class="subscript-text">{{message.timestamp}}</span>
-            </h3>
-            <h3 *ngIf="isUserCurrentUser(message.username)" matLine [message]="message" > 
-              <span class="bolded-text">
-                <span [style.color]="message.colorCode">
-                  {{message.username}}:
-                </span> <span class="subscript-text">{{message.timestamp}}</span>
-              </span> 
-            </h3>
-            <p *ngIf="!isUserCurrentUser(message.username)" matLine>
-              {{message.message}}
-            </p>
-            <p *ngIf="isUserCurrentUser(message.username)" matLine>
-              <span class="bolded-text">{{message.message}}</span>
-            </p>
-          </mat-list-item>
-        </mat-list>
+        <app-messages [messages]="messages" [cookie]="cookie" [renderMessages]='renderMessages'></app-messages>
       </mat-card-content>
     </mat-card>
+    
 
     <mat-card id="chat-input-container">
       <form id="chat-input-form" autocomplete="off" (submit)="sendMessage()">
@@ -58,10 +35,10 @@
       <mat-card-content>
         <mat-list id="users-list">
           <mat-list-item *ngFor="let user of onlineUsers">
-            <h3 *ngIf="!isUserCurrentUser(user.username)" matLine [user]="user" [style.color]="user.colorCode">
+            <h3 *ngIf="!cookie.isUserCurrentUser(user.username)" matLine [user]="user" [style.color]="user.colorCode">
               {{user.username}}
             </h3>
-            <h3 *ngIf="isUserCurrentUser(user.username)" matLine [user]="user" [style.color]="user.colorCode">
+            <h3 *ngIf="cookie.isUserCurrentUser(user.username)" matLine [user]="user" [style.color]="user.colorCode">
               <span class="bolded-text">{{user.username}}</span>
             </h3>
           </mat-list-item>
