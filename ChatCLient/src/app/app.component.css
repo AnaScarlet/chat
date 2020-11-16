@@ -69,11 +69,6 @@ mat-card {
     height: fit-content;
 }
 
-#chat-input-form {
-    display: flex;
-    flex-direction: row;
-}
-
 #chat-users {
     grid-row: 1 / 3;
     grid-column: 2 / 3;
@@ -84,18 +79,6 @@ mat-card {
 #chat-users mat-card-content {
     height: 29em;
     width: fit-content;
-}
-
-mat-form-field {
-    flex: 12;
-}
-
-#send-button {
-    flex: 0.5;
-    margin: 2rem;
-    margin-top: 0.8rem;
-    margin-left: 1rem;
-    max-height: 2.2rem;
 }
 
 #users-list {

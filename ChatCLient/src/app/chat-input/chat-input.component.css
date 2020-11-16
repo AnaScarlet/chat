@@ -1,0 +1,17 @@
+
+#chat-input-form {
+    display: flex;
+    flex-direction: row;
+}
+
+mat-form-field {
+    flex: 12;
+}
+
+#send-button {
+    flex: 0.5;
+    margin: 2rem;
+    margin-top: 0.8rem;
+    margin-left: 1rem;
+    max-height: 2.2rem;
+}

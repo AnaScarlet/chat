@@ -8,24 +8,20 @@
 <mat-sidenav-container>
   <mat-sidenav mode="side" opened></mat-sidenav>
   <mat-sidenav position="end" mode="side" opened></mat-sidenav>
-  <section id="main-content" class="mat-typography" (stateUpdateEvent)="updateState($event)">
+  <section id="main-content" class="mat-typography">
     <mat-card id="chat-container">
       <mat-card-title>Chat</mat-card-title>
       <mat-divider></mat-divider>
       <mat-card-content>
-        <app-messages [messages]="messages" [cookie]="cookie" [renderMessages]='renderMessages'></app-messages>
+        <app-messages [messages]="messages" [cookie]="cookie" [renderMessages]='renderMessages'
+        (messagesStateUpdateEvent)="updateStateFromMesssages($event)">
+        </app-messages>
       </mat-card-content>
     </mat-card>
     
 
     <mat-card id="chat-input-container">
-      <form id="chat-input-form" autocomplete="off" (submit)="sendMessage()">
-        <mat-form-field MatFormFieldControl appearance="outline">
-          <mat-label>Start chatting!</mat-label>
-          <input matInput type="text" [formControl]="messageFormControl" [errorStateMatcher]="matcher" placeholder="Enter your chat message here...">
-        </mat-form-field>
-        <button id="send-button" mat-raised-button color="primary">Send</button>
-      </form>
+      <app-chat-input [cookie]="cookie"></app-chat-input>
     </mat-card>
   
     <mat-card id="chat-users">
@@ -33,16 +29,9 @@
       <mat-card-subtitle>Online</mat-card-subtitle>
       <mat-divider></mat-divider>
       <mat-card-content>
-        <mat-list id="users-list">
-          <mat-list-item *ngFor="let user of onlineUsers">
-            <h3 *ngIf="!cookie.isUserCurrentUser(user.username)" matLine [user]="user" [style.color]="user.colorCode">
-              {{user.username}}
-            </h3>
-            <h3 *ngIf="cookie.isUserCurrentUser(user.username)" matLine [user]="user" [style.color]="user.colorCode">
-              <span class="bolded-text">{{user.username}}</span>
-            </h3>
-          </mat-list-item>
-        </mat-list>
+        <app-users [cookie]="cookie" 
+        (usersStateUpdateEvent)="updateStateFromUsers($event)" (usersUpdateEvent)="updateUsers($event)">
+        </app-users>
       </mat-card-content>
     </mat-card>
   </section>
