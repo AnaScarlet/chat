@@ -31,7 +31,7 @@ export class MessagesComponent implements OnInit {
   @Output() messagesStateUpdateEvent = new EventEmitter<{messages: Message[], users: User[], cookieUsername: string}>();
 
  
-  private _cookie;
+  private _cookie: Cookie;
   private _messages: Message[];
   public renderedMessages: Message[];
   public renderStartIndex: number = 0;
@@ -73,20 +73,24 @@ export class MessagesComponent implements OnInit {
 
   public updateRenderedMessages(data) {
     console.log("*Parent got new messages*");
-    console.log("Messages.length = " + this._messages.length);
+    console.log("messages.length-1 = " + (this._messages.length-1) + "; data.renderEndIndex = " + data.renderEndIndex);
     if (data.renderEndIndex <= this._messages.length-1) {
       console.log("Have enough messages in the array to display a whole portion.");
       console.log("End index: " + data.renderEndIndex);
-      this.renderedMessages = this.renderedMessages.concat(this._messages.slice(data.renderStartIndex, data.renderEndIndex));
+      this.renderedMessages = this.renderedMessages.concat(this._messages.slice(data.renderStartIndex, data.renderEndIndex+1));  // need to add 1 to the end index because slice() is exclusive of the last index
       this.renderStartIndex = data.renderEndIndex;
+    }
+    else if (data.renderStartIndex === this._messages.length-1) {
+      this.renderStartIndex = this._messages.length+1; // ensure you stop next round - same stopping logic as in the block below
     }
     else if (data.renderEndIndex > this._messages.length-1) {
       console.log("Not enough messages in the array to display a whole portion.");
       let endIndx = this._messages.length - 1;
       console.log("End index: " + endIndx);
       this.renderedMessages = this.renderedMessages.concat(this._messages.slice(data.renderStartIndex, endIndx+1));
-      this.renderStartIndex = endIndx;
-    } else {
+      this.renderStartIndex = endIndx+1; // add 1 extra to stop the scrolling - next round will go into the else condition.
+    }
+    else {
       // don't concatenate to rendered messages because the start index is 0 and this was the default rendered messages.
     }
     console.log("New messages:");
