@@ -72,29 +72,30 @@ export class MessagesComponent implements OnInit {
 
 
   public updateRenderedMessages(data) {
-    console.log("*Parent got new messages*");
-    console.log("messages.length-1 = " + (this._messages.length-1) + "; data.renderEndIndex = " + data.renderEndIndex);
+    //console.log("*Parent got new messages*");
+    //console.log("messages.length-1 = " + (this._messages.length-1) + "; data.renderEndIndex = " + data.renderEndIndex);
     if (data.renderEndIndex <= this._messages.length-1) {
-      console.log("Have enough messages in the array to display a whole portion.");
-      console.log("End index: " + data.renderEndIndex);
+      //console.log("Have enough messages in the array to display a whole portion.");
+      //console.log("End index: " + data.renderEndIndex);
       this.renderedMessages = this.renderedMessages.concat(this._messages.slice(data.renderStartIndex, data.renderEndIndex+1));  // need to add 1 to the end index because slice() is exclusive of the last index
       this.renderStartIndex = data.renderEndIndex;
     }
     else if (data.renderStartIndex === this._messages.length-1) {
-      this.renderStartIndex = this._messages.length+1; // ensure you stop next round - same stopping logic as in the block below
+      this.renderStartIndex = this._messages.length; // ensure you stop next round - same stopping logic as in the block below
     }
     else if (data.renderEndIndex > this._messages.length-1) {
-      console.log("Not enough messages in the array to display a whole portion.");
+      //console.log("Not enough messages in the array to display a whole portion.");
       let endIndx = this._messages.length - 1;
-      console.log("End index: " + endIndx);
+      //console.log("End index: " + endIndx);
       this.renderedMessages = this.renderedMessages.concat(this._messages.slice(data.renderStartIndex, endIndx+1));
       this.renderStartIndex = endIndx+1; // add 1 extra to stop the scrolling - next round will go into the else condition.
     }
     else {
-      // don't concatenate to rendered messages because the start index is 0 and this was the default rendered messages.
+      // Scrolling stop condition - don't concatenate to rendered messages.
+      // Happens if renderedStartIndex is 0 or greater than this._messages.length+1
     }
-    console.log("New messages:");
-    console.log(this.renderedMessages);
+    // console.log("New messages:");
+    // console.log(this.renderedMessages);
   }
 
   private setInnitialRenderedMessages() {
