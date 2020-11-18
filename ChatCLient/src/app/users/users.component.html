@@ -1,9 +1,9 @@
 <mat-list id="users-list">
-    <mat-list-item *ngFor="let user of onlineUsers">
-      <h3 *ngIf="!cookie.isUserCurrentUser(user.username)" matLine [user]="user" [style.color]="user.colorCode">
+    <mat-list-item *ngFor="let user of _onlineUsers">
+      <h3 *ngIf="!_cookie.isUserCurrentUser(user.username)" matLine [user]="user" [style.color]="user.colorCode">
         {{user.username}}
       </h3>
-      <h3 *ngIf="cookie.isUserCurrentUser(user.username)" matLine [user]="user" [style.color]="user.colorCode">
+      <h3 *ngIf="_cookie.isUserCurrentUser(user.username)" matLine [user]="user" [style.color]="user.colorCode">
         <span class="bolded-text">{{user.username}}</span>
       </h3>
     </mat-list-item>

@@ -35,12 +35,13 @@ export class ScrollTrackerDirective {
     }
 
     let limit = -(tracker.scrollHeight - tracker.clientHeight -1);
+    let renderEndIndex: number = this.msgIndx+8;
 
     if (tracker.scrollTop <= limit) {
       console.log("Get new messages");
 
       console.log("Starting at index: " + this.startIndx);
-      this.renderMessages.emit({renderStartIndex: this.msgIndx, renderEndIndex: this.msgIndx+8});
+      this.renderMessages.emit({renderStartIndex: this.msgIndx, renderEndIndex: renderEndIndex});
     }
 
     this.prevPositionStart = event.target.scrollTop;

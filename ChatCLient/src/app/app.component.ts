@@ -18,7 +18,7 @@ export class AppComponent implements AfterViewInit {
   public onlineUsers: User[];
   public messages: Message[];
   public renderMessages: boolean = false;
-  public cookie: Cookie;
+  public cookie: Cookie = new Cookie();
   
 
 
@@ -57,16 +57,20 @@ export class AppComponent implements AfterViewInit {
   public updateStateFromMesssages(data) {
     console.log("Parent updating state from messages.");
     this.messages = data.messages;
-    this.cookie = data.cookie;
+    this.cookie.setUsername(data.cookieUsername);
     this.onlineUsers = data.users;
+    console.log("Parent's cookie:");
+    console.log(this.cookie.getUsernameFromCookie());
   }
 
   public updateStateFromUsers(data) {
     console.log("Parent updating state from users.");
     this.messages = data.messages;
-    this.cookie = data.cookie;
+    this.cookie.setUsername(data.cookieUsername);
     this.onlineUsers = data.users;
     this.renderMessages = data.renderMessages;
+    console.log("Parent's cookie:");
+    console.log(this.cookie.getUsernameFromCookie());
   }
 
   public updateUsers(users: User[]) {

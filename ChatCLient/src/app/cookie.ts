@@ -1,13 +1,14 @@
 export class Cookie {
-    
-    constructor( private username: string) {}
+
+    constructor() {
+    }
 
     public setUsername(username: string) {
         document.cookie = username;
     }
 
     public getUsernameFromCookie() {
-        return this.username;
+        return document.cookie;
     }
 
     public isUserCurrentUser(username: string) {

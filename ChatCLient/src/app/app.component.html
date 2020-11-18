@@ -29,7 +29,7 @@
       <mat-card-subtitle>Online</mat-card-subtitle>
       <mat-divider></mat-divider>
       <mat-card-content>
-        <app-users [cookie]="cookie" 
+        <app-users [cookie]="cookie" [onlineUsers]="onlineUsers"
         (usersStateUpdateEvent)="updateStateFromUsers($event)" (usersUpdateEvent)="updateUsers($event)">
         </app-users>
       </mat-card-content>

@@ -1,7 +1,8 @@
 <form id="chat-input-form" autocomplete="off" (submit)="sendMessage()">
     <mat-form-field MatFormFieldControl appearance="outline">
         <mat-label>Start chatting!</mat-label>
-        <input matInput type="text" [formControl]="messageFormControl" [errorStateMatcher]="matcher" placeholder="Enter your chat message here...">
+        <input matInput type="text" [formControl]="messageFormControl" 
+        [errorStateMatcher]="matcher" placeholder="Enter your chat message here...">
     </mat-form-field>
     <button id="send-button" mat-raised-button color="primary">Send</button>
 </form>

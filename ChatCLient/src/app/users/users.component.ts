@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output, SimpleChanges } from '@angular/core';
 import { Cookie } from '../cookie';
 import { Message } from '../message';
 import { MessagingService } from "../messaging.service";
@@ -12,13 +12,27 @@ import { User } from '../user';
 })
 export class UsersComponent implements OnInit {
 
-  @Input() cookie: Cookie;
-  @Output() usersStateUpdateEvent = new EventEmitter<{messages: Message[], users: User[], cookie: Cookie, renderMessages: boolean}>();
+  @Input()
+  get cookie(): Cookie {
+    return this._cookie;
+  }
+  set cookie(cookie: Cookie) {
+    this._cookie = cookie;
+  }
+  @Input()
+  public get onlineUsers(): User[] {
+    return this._onlineUsers;
+  }
+  public set onlineUsers(value: User[]) {
+    this._onlineUsers = value;
+  }
+  @Output() usersStateUpdateEvent = new EventEmitter<{messages: Message[], users: User[], cookieUsername: string, renderMessages: boolean}>();
   @Output() usersUpdateEvent = new EventEmitter<User[]>();
 
-  public onlineUsers: User[];
+  public _onlineUsers: User[];
   private messages: Message[];
   private renderMessages: boolean = false;
+  public _cookie: Cookie;
 
   constructor(private messagingService: MessagingService) { }
 
@@ -26,24 +40,37 @@ export class UsersComponent implements OnInit {
     this.retrieveOnlineUsers();
   }
 
+  // ngOnChanges(changes: SimpleChanges) {
+  //   if (changes.cookie) {
+  //     console.log("Users: Cookie change detected.")
+  //     this.myCookie = changes.cookie.currentValue;
+  //   }
+  // }
+
   public retrieveOnlineUsers() {
     this.messagingService.joinUser()
         .subscribe((socketObject: SocketReturnObject) => {
           console.log("Got user join event.");
+          let cookieUsername = null;
 
           // If cookie is set, send it to server
-          if (this.cookie !== undefined && this.cookie.getUsernameFromCookie()) {
-            console.log("Cookie is already set.");
-            this.messagingService.sendUserJoin(this.cookie.getUsernameFromCookie());
+          if (this._cookie === undefined) {
+            console.log("Cookie object undefined. Panic!");
+          }
+          if (this._cookie.getUsernameFromCookie()) {
+            console.log("Cookie is already set to " + this._cookie.getUsernameFromCookie());
+            cookieUsername = this._cookie.getUsernameFromCookie();
+            this.messagingService.sendUserJoin(cookieUsername);
           }
           else {
             console.log("Cookie is not set.");
-            this.cookie = new Cookie(socketObject.currentUserName)
+            cookieUsername = socketObject.currentUserName;
+            console.log("Set cookie to " + this._cookie.getUsernameFromCookie());
           }
-          this.onlineUsers = socketObject.users;
+          this._onlineUsers = socketObject.users;
           this.messages = socketObject.messages;
           this.renderMessages = true;
-          this.usersStateUpdateEvent.emit({messages:this.messages, users:this.onlineUsers, cookie:this.cookie, renderMessages:this.renderMessages});
+          this.usersStateUpdateEvent.emit({messages:this.messages, users:this._onlineUsers, cookieUsername:cookieUsername, renderMessages:this.renderMessages});
         });
 
     this.messagingService.leaveUser()
@@ -63,7 +90,7 @@ export class UsersComponent implements OnInit {
     this.messagingService.userPoll()
         .subscribe((usernameToCheck: string) => {
           console.log("Got user poll.");
-          if (this.cookie.getUsernameFromCookie() === usernameToCheck) {
+          if (this._cookie.getUsernameFromCookie() === usernameToCheck) {
             console.log("It was me.");
             this.messagingService.respondToUserPoll(true, usernameToCheck);
           }
@@ -82,8 +109,8 @@ export class UsersComponent implements OnInit {
   }
 
   private updateUsers(users: User[]) {
-    this.onlineUsers = users;
-    this.usersUpdateEvent.emit(this.onlineUsers);
+    this._onlineUsers = users;
+    this.usersUpdateEvent.emit(this._onlineUsers);
   }
 
 }
