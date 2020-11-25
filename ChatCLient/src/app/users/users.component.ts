@@ -26,8 +26,8 @@ export class UsersComponent implements OnInit {
   public set onlineUsers(value: User[]) {
     this._onlineUsers = value;
   }
-  @Output() usersStateUpdateEvent = new EventEmitter<{messages: Message[], users: User[], cookieUsername: string, renderMessages: boolean}>();
-  @Output() usersUpdateEvent = new EventEmitter<User[]>();
+  @Output() usersStateUpdateEvent = new EventEmitter<{messages: Message[], users: User[], cookieUsername: string, renderMessages: boolean}>(true);
+  @Output() usersUpdateEvent = new EventEmitter<User[]>(true);
 
   public _onlineUsers: User[];
   private messages: Message[];
@@ -39,13 +39,6 @@ export class UsersComponent implements OnInit {
   ngOnInit(): void {
     this.retrieveOnlineUsers();
   }
-
-  // ngOnChanges(changes: SimpleChanges) {
-  //   if (changes.cookie) {
-  //     console.log("Users: Cookie change detected.")
-  //     this.myCookie = changes.cookie.currentValue;
-  //   }
-  // }
 
   public retrieveOnlineUsers() {
     this.messagingService.joinUser()
@@ -82,23 +75,23 @@ export class UsersComponent implements OnInit {
 
     this.messagingService.userRejoin()
         .subscribe((users: User[]) => {
-          console.log("User rejoin confirmation. Online users:");
+          console.log("User rejoin confirmation.");
           console.log(users);
           this.updateUsers(users);
         });
     
-    this.messagingService.userPoll()
-        .subscribe((usernameToCheck: string) => {
-          console.log("Got user poll.");
-          if (this._cookie.getUsernameFromCookie() === usernameToCheck) {
-            console.log("It was me.");
-            this.messagingService.respondToUserPoll(true, usernameToCheck);
-          }
-          else {
-            console.log("Not me.");
-            this.messagingService.respondToUserPoll(false, usernameToCheck);
-          }
-        });
+    // this.messagingService.userPoll()
+    //     .subscribe((usernameToCheck: string) => {
+    //       console.log("Got user poll.");
+    //       if (this._cookie.getUsernameFromCookie() === usernameToCheck) {
+    //         console.log("It was me.");
+    //         this.messagingService.respondToUserPoll(true, usernameToCheck);
+    //       }
+    //       else {
+    //         console.log("Not me.");
+    //         this.messagingService.respondToUserPoll(false, usernameToCheck);
+    //       }
+    //     });
     
     this.messagingService.usersUpdate()
         .subscribe((users: User[]) => {
@@ -112,5 +105,7 @@ export class UsersComponent implements OnInit {
     this._onlineUsers = users;
     this.usersUpdateEvent.emit(this._onlineUsers);
   }
+
+  
 
 }

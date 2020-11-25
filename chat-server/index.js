@@ -48,6 +48,13 @@ class User {
     this.isOnline = true;
   }
   
+  clone() {
+    let newUser = new User();
+    newUser.username = this.username;
+    newUser.colorCode = this.colorCode;
+    newUser.isOnline = this.isOnline;
+    return newUser;
+  }
 }
 
 class SocketReturnObject {
@@ -189,11 +196,33 @@ function rejoinUser(username, currentUser) {
     console.log(onlineUsersList);
     console.log("\n");
     io.emit('rejoin', onlineUsersList);
+    return newCurrentUser;
   }
   else {
     console.log("WARNING: could not find rejoining user in the users list.");
-    //usersList.push(currentUser);
-    //onlineUsersList.push(currentUser);
+    return currentUser;
+  }
+}
+
+function rejoinUserWithClone(username, currentUser) {
+  let newCurrentUser = usersList.find( (user) => username === user.username );
+  let cloneNewCurrentUser = newCurrentUser.clone();
+  if (newCurrentUser !== undefined) {
+    console.log(`currentUser.username = ${currentUser.username}`);
+    removeUser(currentUser);
+    cloneNewCurrentUser.setOnline(); //shouldn't need this...
+    onlineUsersList.push(cloneNewCurrentUser);
+    usersList.push(cloneNewCurrentUser);
+    filterOnlineUsers();
+    console.log("Updated Online Users list:");
+    console.log(onlineUsersList);
+    console.log("\n");
+    io.emit('rejoin', onlineUsersList);
+    return cloneNewCurrentUser;
+  }
+  else {
+    console.log("WARNING: could not find rejoining user in the users list.");
+    return currentUser;
   }
 }
 
@@ -224,12 +253,17 @@ io.on('connection', function(socket){
       }
       else {
         console.log("\tCurrent user's username is NOT the same as cookie username.");
-        console.log("\tNeed to poll current users to see if they're actually there.");  
+        console.log("\tAssume cookie is corrent and rejoin user.");  
+        currentUser = rejoinUserWithClone(cookieUsername, currentUser);
+        console.log("Updated current user:");
+        console.log(currentUser);
       }
     }
     else if (cookieUserExistsInUsersList !== -1 && cookieUserExistsInOnlineUsersList === -1) {
       console.log("INFO: User is in usersList but not in onlineUsersList. It's a rejoining user.");
-      rejoinUser(cookieUsername, currentUser);
+      currentUser = rejoinUser(cookieUsername, currentUser);
+      console.log("Updated current user:");
+      console.log(currentUser);
     }
     else {
       console.log("WARNING: Something werid with the username stored in the client's cookie.");
@@ -242,33 +276,33 @@ io.on('connection', function(socket){
   //          No way to differentiate between this and an actual new user joining...
   // Another case: username changes/ user opens a new tab, so this socket's currentUser is not representative of the user object.
   //          When the connectiono closes, it removes the wrong user from the list...
-  let pollingIntervalId = setInterval(() => {
-    for (user of onlineUsersList) {
-      io.sockets.emit("user poll", user.username);
-    }
-    // Wait for a minute for them to respond
-    setTimeout(() => {
-      console.log("Removing inactive users.")
-      for (user of onlineUsersList) {
-        if (!presentUsers.includes(user.username)) {
-          console.log("Found an incative user.");
-          removeOnlineUser(user);
-        }
-      }
-      presentUsers = [];
-      console.log("Online users list:");
-      console.log(onlineUsersList);
+  // let pollingIntervalId = setInterval(() => {
+  //   for (user of onlineUsersList) {
+  //     io.sockets.emit("user poll", user.username);
+  //   }
+  //   // Wait for a minute for them to respond
+  //   setTimeout(() => {
+  //     console.log("Removing inactive users.")
+  //     for (user of onlineUsersList) {
+  //       if (!presentUsers.includes(user.username)) {
+  //         console.log("Found an incative user.");
+  //         removeOnlineUser(user);
+  //       }
+  //     }
+  //     presentUsers = [];
+  //     console.log("Online users list:");
+  //     console.log(onlineUsersList);
 
-      io.sockets.emit("users update", onlineUsersList);
-    }, 10000);  // wait for users to respond
-  }, 100000); // poll every 100 seconds
+  //     io.sockets.emit("users update", onlineUsersList);
+  //   }, 10000);  // wait for users to respond
+  // }, 100000); // poll every 100 seconds
 
-  socket.on("user poll", function (userIsMe, polledUsername) {
-    if (userIsMe === true) {
-      console.log(polledUsername + " is present");
-      presentUsers.push(polledUsername);
-    }
-  });
+  // socket.on("user poll", function (userIsMe, polledUsername) {
+  //   if (userIsMe === true) {
+  //     console.log(polledUsername + " is present");
+  //     presentUsers.push(polledUsername);
+  //   }
+  // });
   
   // 'chat message' is an event from this particular connected client
   socket.on('message', function(message, username){
@@ -329,7 +363,7 @@ io.on('connection', function(socket){
 
   socket.on('disconnect', () => {
     console.log("User disconnected. Username: " + currentUser.username);
-    clearInterval(pollingIntervalId);
+    //clearInterval(pollingIntervalId);
     currentUser.setOffline();
     onlineUsersList = usersList.slice(); //  copy array
     filterOutOfflineUsers(onlineUsersList);

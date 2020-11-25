@@ -58,7 +58,7 @@ export class AppComponent implements AfterViewInit {
     console.log("Parent updating state from messages.");
     this.messages = data.messages;
     this.cookie.setUsername(data.cookieUsername);
-    this.onlineUsers = data.users;
+    this.updateUsers(data.users);
     console.log("Parent's cookie:");
     console.log(this.cookie.getUsernameFromCookie());
   }
@@ -67,14 +67,34 @@ export class AppComponent implements AfterViewInit {
     console.log("Parent updating state from users.");
     this.messages = data.messages;
     this.cookie.setUsername(data.cookieUsername);
-    this.onlineUsers = data.users;
+    this.updateUsers(data.users);
     this.renderMessages = data.renderMessages;
     console.log("Parent's cookie:");
     console.log(this.cookie.getUsernameFromCookie());
   }
 
   public updateUsers(users: User[]) {
-    this.onlineUsers = users;
+    this.onlineUsers = this.filterOutDuplicatedFromOnlineUsersList(users);
+    console.log("Updated users list (parent):");
+    console.log(this.onlineUsers);
+  }
+
+  private filterOutDuplicatedFromOnlineUsersList(usersList: User[]): User[] {
+    console.log("In filterOutDuplicates");
+    let uniqueUsersList: User[] = []
+    let filteredUsernames: string[] = usersList.map<string>((user: User): string => {return user.username});
+    console.log("filteredUsernames:");
+    console.log(filteredUsernames);
+    let usernamesSet: string[] = [...new Set<string>(filteredUsernames)];
+    console.log("usernamesSet:");
+    console.log(usernamesSet);
+    usernamesSet.forEach((usernameValue) => {
+      uniqueUsersList.push(
+        usersList.find((user) => user.username === usernameValue));
+    });
+    console.log("Unique users list:");
+    console.log(uniqueUsersList);
+    return uniqueUsersList;
   }
 
 

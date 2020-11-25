@@ -28,7 +28,7 @@ export class MessagesComponent implements OnInit {
     this._cookie = cookie;
   }
   @Input() renderMessages: boolean;
-  @Output() messagesStateUpdateEvent = new EventEmitter<{messages: Message[], users: User[], cookieUsername: string}>();
+  @Output() messagesStateUpdateEvent = new EventEmitter<{messages: Message[], users: User[], cookieUsername: string}>(true);
 
  
   private _cookie: Cookie;
